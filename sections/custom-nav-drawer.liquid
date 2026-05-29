@@ -55,9 +55,12 @@
                   {% assign link_handle = link.title | handleize %}
                 {% endif %}
                 {% for inner_block in section.blocks %}
-                  {% if inner_block.type == 'submenu-filter' and inner_block.settings.parent_handle == link_handle %}
-                    {% assign has_submenu = true %}
-                    {% break %}
+                  {% if inner_block.type == 'submenu-filter' %}
+                    {% assign sf_handle = inner_block.settings.parent_handle | handleize %}
+                    {% if sf_handle == link_handle %}
+                      {% assign has_submenu = true %}
+                      {% break %}
+                    {% endif %}
                   {% endif %}
                 {% endfor %}
 
@@ -67,7 +70,8 @@
                 {% assign highlight_badge_text = '' %}
                 {% assign highlight_badge_color = '' %}
                 {% for inner_block in section.blocks %}
-                  {% if inner_block.type == 'menu-highlight' and inner_block.settings.item_handle == link_handle %}
+                  {% assign mh_handle = inner_block.settings.item_handle | handleize %}
+                  {% if inner_block.type == 'menu-highlight' and mh_handle == link_handle %}
                     {% assign is_highlighted = true %}
                     {% assign highlight_text_color = inner_block.settings.text_color %}
                     {% assign highlight_badge_text = inner_block.settings.badge_text %}
@@ -203,7 +207,7 @@
         <div
           class="custom-nav-drawer__filter-content"
           ref="filterContents[]"
-          data-parent-handle="{{ block.settings.parent_handle }}"
+          data-parent-handle="{{ block.settings.parent_handle | handleize }}"
           {{ block.shopify_attributes }}
         >
           {% if block.settings.filter_menu != blank %}

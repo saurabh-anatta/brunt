@@ -118,7 +118,6 @@
       "blocks": {
         "tab_shop": {
           "type": "nav-tab",
-          "disabled": true,
           "settings": {
             "title": "Shop",
             "menu": "main-menu"

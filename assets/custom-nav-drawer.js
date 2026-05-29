@@ -30,6 +30,12 @@ class CustomNavDrawer extends Component {
   /** @type {AbortController|null} */
   #externalAbort = null;
 
+  /** @type {AbortSignal|null} */
+  #hookSignal = null;
+
+  /** @type {MutationObserver|null} */
+  #headerObserver = null;
+
   connectedCallback() {
     super.connectedCallback();
 
@@ -82,14 +88,37 @@ class CustomNavDrawer extends Component {
       this.#externalAbort.abort();
       this.#externalAbort = null;
     }
+    if (this.#headerObserver) {
+      this.#headerObserver.disconnect();
+      this.#headerObserver = null;
+    }
     this.#cancelCloseTimer();
     this.#cancelOpenTimer();
   }
 
   /**
+   * Hook into the native Horizon header menu. The desktop menu (`<header-menu>`)
+   * hydrates asynchronously and its overflow-list re-renders items, so binding
+   * once on connect frequently misses every link. We bind immediately, then keep
+   * re-binding (idempotently) whenever the header DOM changes.
    * @param {AbortSignal} signal
    */
   #hookHeaderMenuItems(signal) {
+    this.#hookSignal = signal;
+
+    /* Bind whatever is already in the DOM */
+    this.#bindHeaderMenuItems();
+
+    /* Re-bind as the header menu hydrates / reflows */
+    const headerRoot = document.getElementById('header-group') || document.body;
+    this.#headerObserver = new MutationObserver(() => this.#bindHeaderMenuItems());
+    this.#headerObserver.observe(headerRoot, { childList: true, subtree: true });
+  }
+
+  #bindHeaderMenuItems() {
+    const signal = this.#hookSignal;
+    if (!signal) return;
+
     const menuLinks = document.querySelectorAll('.menu-list__link-title');
 
     for (const linkEl of menuLinks) {
@@ -97,9 +126,15 @@ class CustomNavDrawer extends Component {
 
       if (!this.#tabTitles.has(text)) continue;
 
-      const tabTitle = linkEl.textContent.trim();
       const listItem = linkEl.closest('.menu-list__list-item');
       const anchor = linkEl.closest('a, button');
+      const target = listItem || anchor;
+
+      /* Skip items already wired up */
+      if (!target || target.dataset.cndHooked === 'true') continue;
+      target.dataset.cndHooked = 'true';
+
+      const tabTitle = linkEl.textContent.trim();
 
       if (listItem) {
         listItem.addEventListener('pointerenter', () => {
