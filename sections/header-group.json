@@ -81,6 +81,7 @@
         "logo_position": "center",
         "menu_position": "left",
         "menu_row": "top",
+        "customer_account_menu": "customer-account-main-menu",
         "show_search": true,
         "search_position": "right",
         "search_row": "top",
@@ -97,6 +98,10 @@
         "divider_width": 0,
         "divider_size": "page-width",
         "border_width": 0,
+        "actions_display_style": "icon",
+        "actions_font_size": "0.875rem",
+        "actions_font": "body",
+        "actions_text_case": "none",
         "color_scheme_top": "scheme-1",
         "color_scheme_bottom": "",
         "color_scheme_transparent": "scheme-6",
@@ -113,23 +118,31 @@
       "blocks": {
         "tab_shop": {
           "type": "nav-tab",
+          "disabled": true,
           "settings": {
             "title": "Shop",
             "menu": "main-menu"
+          }
+        },
+        "submenu_filter_Vd9x76": {
+          "type": "submenu-filter",
+          "settings": {
+            "parent_handle": "Shop 1",
+            "filter_menu": "main-menu"
           }
         },
         "tab_learn": {
           "type": "nav-tab",
           "settings": {
             "title": "Learn",
-            "menu": ""
+            "menu": "footer"
           }
         },
         "tab_rewards": {
           "type": "nav-tab",
           "settings": {
             "title": "Rewards",
-            "menu": ""
+            "menu": "footer-column-1-big"
           }
         },
         "promo_card_1": {
@@ -137,7 +150,8 @@
           "settings": {
             "heading": "Promo Card Header",
             "button_text": "Shop Now",
-            "background_color": "#E1E1D9"
+            "button_link": "",
+            "background_color": "#e1e1d9"
           }
         },
         "promo_card_2": {
@@ -145,7 +159,8 @@
           "settings": {
             "heading": "Promo Card Header",
             "button_text": "Shop Now",
-            "background_color": "#E1E1D9"
+            "button_link": "",
+            "background_color": "#e1e1d9"
           }
         },
         "promo_card_3": {
@@ -153,54 +168,63 @@
           "settings": {
             "heading": "Promo Card Header",
             "button_text": "Shop Now",
-            "background_color": "#E1E1D9"
+            "button_link": "",
+            "background_color": "#e1e1d9"
           }
         },
         "utility_login": {
           "type": "utility-link",
           "settings": {
-            "label": "Login"
+            "label": "Login",
+            "link": ""
           }
         },
         "utility_track_orders": {
           "type": "utility-link",
           "settings": {
-            "label": "Track Orders"
+            "label": "Track Orders",
+            "link": ""
           }
         },
         "utility_returns": {
           "type": "utility-link",
           "settings": {
-            "label": "Returns + Exchanges"
+            "label": "Returns + Exchanges",
+            "link": ""
           }
         },
         "utility_faqs": {
           "type": "utility-link",
           "settings": {
-            "label": "FAQs"
+            "label": "FAQs",
+            "link": ""
           }
         },
         "utility_email": {
           "type": "utility-link",
           "settings": {
-            "label": "E-mail Us"
+            "label": "E-mail Us",
+            "link": ""
           }
         },
         "utility_call": {
           "type": "utility-link",
           "settings": {
-            "label": "Call Us"
+            "label": "Call Us",
+            "link": ""
           }
         },
         "utility_store_locator": {
           "type": "utility-link",
           "settings": {
-            "label": "Store Locator"
+            "label": "Store Locator",
+            "link": ""
           }
         }
       },
       "block_order": [
         "tab_shop",
+        "submenu_filter_Vd9x76",
         "tab_learn",
         "tab_rewards",
         "promo_card_1",
@@ -215,6 +239,7 @@
         "utility_store_locator"
       ],
       "settings": {
+        "color_scheme": "",
         "footer_color_scheme": "scheme-7",
         "featured_title": "Featured",
         "footer_title": "Need help?"
