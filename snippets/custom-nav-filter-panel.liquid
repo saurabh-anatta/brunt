@@ -1,0 +1,88 @@
+{% doc %}
+  Custom Navigation Filter Panel
+
+  Renders the right-side filter/submenu panel content from a link_list.
+  Rendering logic based on link_list hierarchy:
+  - Level 1 items with a real URL and no children → direct links with arrow icon
+  - Level 1 items with children → section groups:
+    - Level 2 children without grandchildren → tag pills (flex-wrap)
+    - Level 2 children with grandchildren → accordion headers with expandable Level 3 children
+
+  @param {object} filter_menu - Shopify linklist object (required)
+
+  @example
+  {% render 'custom-nav-filter-panel', filter_menu: block.settings.filter_menu %}
+{% enddoc %}
+
+{% liquid
+  assign filter_menu = filter_menu | default: empty
+  unless filter_menu != empty
+    break
+  endunless
+%}
+
+{% for link in filter_menu.links %}
+  {% if link.links.size == 0 %}
+    {%- comment -%} Direct link — no children, render as full-width link with arrow icon {%- endcomment -%}
+    <a href="{{ link.url }}" class="custom-nav-filter__direct-link">
+      <span class="custom-nav-filter__direct-link-text">{{ link.title }}</span>
+      <span class="custom-nav-filter__direct-link-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 17L17 7M17 7H7M17 7V17" stroke="#1E1B1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </a>
+  {% else %}
+    {%- comment -%} Section group — has children {%- endcomment -%}
+    <div class="custom-nav-filter__section">
+      <h3 class="custom-nav-filter__section-title">{{ link.title }}</h3>
+
+      {%- comment -%} Check if children are tags (no grandchildren) or accordions (have grandchildren) {%- endcomment -%}
+      {% assign has_tag_children = false %}
+      {% assign has_accordion_children = false %}
+      {% for child in link.links %}
+        {% if child.links.size > 0 %}
+          {% assign has_accordion_children = true %}
+        {% else %}
+          {% assign has_tag_children = true %}
+        {% endif %}
+      {% endfor %}
+
+      {% if has_tag_children and has_accordion_children == false %}
+        {%- comment -%} All children are tags — render as tag pills {%- endcomment -%}
+        <div class="custom-nav-filter__tags">
+          {% for child in link.links %}
+            <a href="{{ child.url }}" class="custom-nav-tag">{{ child.title }}</a>
+          {% endfor %}
+        </div>
+      {% elsif has_accordion_children %}
+        {%- comment -%} Some children have grandchildren — render individually {%- endcomment -%}
+        {% for child in link.links %}
+          {% if child.links.size > 0 %}
+            {%- comment -%} Accordion — has grandchildren {%- endcomment -%}
+            <div class="custom-nav-accordion">
+              <button class="custom-nav-accordion__header" type="button" aria-expanded="false">
+                <span class="custom-nav-accordion__header-text">{{ child.title }}</span>
+                <span class="custom-nav-accordion__caret">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="#1E1B1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
+              <div class="custom-nav-accordion__children">
+                {% for grandchild in child.links %}
+                  <a href="{{ grandchild.url }}" class="custom-nav-accordion__child-link">{{ grandchild.title }}</a>
+                {% endfor %}
+              </div>
+            </div>
+          {% else %}
+            {%- comment -%} Tag pill — no grandchildren {%- endcomment -%}
+            <div class="custom-nav-filter__tags">
+              <a href="{{ child.url }}" class="custom-nav-tag">{{ child.title }}</a>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    </div>
+  {% endif %}
+{% endfor %}

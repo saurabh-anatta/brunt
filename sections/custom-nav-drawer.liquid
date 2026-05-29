@@ -1,0 +1,418 @@
+{{ 'custom-nav-drawer.css' | asset_url | stylesheet_tag }}
+
+<custom-nav-drawer class="custom-nav-drawer" role="dialog" aria-modal="true" aria-label="Navigation drawer">
+  {%- comment -%} Overlay {%- endcomment -%}
+  <div class="custom-nav-drawer__overlay" ref="overlay"></div>
+  {%- comment -%} === LEFT PANEL (Main) === {%- endcomment -%}
+  <div class="custom-nav-drawer__main" ref="drawerPanel">
+    {%- comment -%} Tab Header {%- endcomment -%}
+    <div class="custom-nav-drawer__header">
+      <div class="custom-nav-drawer__tabs" role="tablist">
+        {% assign first_tab = true %}
+        {% for block in section.blocks %}
+          {% if block.type == 'nav-tab' %}
+            <button
+              class="custom-nav-drawer__tab{% if first_tab %} custom-nav-drawer__tab--active{% endif %}"
+              type="button"
+              role="tab"
+              ref="tabButtons[]"
+              data-tab-title="{{ block.settings.title }}"
+              data-action="switch-tab"
+              aria-selected="{% if first_tab %}true{% else %}false{% endif %}"
+              {{ block.shopify_attributes }}
+            >
+              {{ block.settings.title }}
+            </button>
+            {% assign first_tab = false %}
+          {% endif %}
+        {% endfor %}
+      </div>
+      <button class="custom-nav-drawer__close" type="button" data-action="close" aria-label="Close navigation">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6L18 18" stroke="#1E1B1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    {%- comment -%} Tab Content Panels {%- endcomment -%}
+    {% assign first_panel = true %}
+    {% for block in section.blocks %}
+      {% if block.type == 'nav-tab' %}
+        <div
+          class="custom-nav-drawer__tab-panel{% if first_panel %} custom-nav-drawer__tab-panel--active{% endif %}"
+          ref="tabPanels[]"
+          data-tab-title="{{ block.settings.title }}"
+          role="tabpanel"
+        >
+          {%- comment -%} Menu Items {%- endcomment -%}
+          {% if block.settings.menu != blank %}
+            <div class="custom-nav-drawer__menu-items">
+              {% for link in linklists[block.settings.menu].links %}
+                {%- comment -%} Check if this link has a submenu-filter block {%- endcomment -%}
+                {% assign has_submenu = false %}
+                {% assign link_handle = link.handle %}
+                {% if link_handle == blank %}
+                  {% assign link_handle = link.title | handleize %}
+                {% endif %}
+                {% for inner_block in section.blocks %}
+                  {% if inner_block.type == 'submenu-filter' and inner_block.settings.parent_handle == link_handle %}
+                    {% assign has_submenu = true %}
+                    {% break %}
+                  {% endif %}
+                {% endfor %}
+
+                {%- comment -%} Check if this link has a highlight block {%- endcomment -%}
+                {% assign is_highlighted = false %}
+                {% assign highlight_text_color = '' %}
+                {% assign highlight_badge_text = '' %}
+                {% assign highlight_badge_color = '' %}
+                {% for inner_block in section.blocks %}
+                  {% if inner_block.type == 'menu-highlight' and inner_block.settings.item_handle == link_handle %}
+                    {% assign is_highlighted = true %}
+                    {% assign highlight_text_color = inner_block.settings.text_color %}
+                    {% assign highlight_badge_text = inner_block.settings.badge_text %}
+                    {% assign highlight_badge_color = inner_block.settings.badge_color %}
+                    {% break %}
+                  {% endif %}
+                {% endfor %}
+
+                {% if has_submenu %}
+                  <button
+                    class="custom-nav-drawer__menu-item custom-nav-drawer__menu-item--has-submenu{% if is_highlighted %} custom-nav-drawer__menu-item--highlighted{% endif %}"
+                    data-has-submenu="true"
+                    data-parent-handle="{{ link_handle }}"
+                    type="button"
+                    {% if is_highlighted %}style="--highlight-color: {{ highlight_text_color }};"{% endif %}
+                  >
+                    <span class="custom-nav-drawer__menu-item-text">{{ link.title }}</span>
+                    {% if is_highlighted and highlight_badge_text != blank %}
+                      <span class="custom-nav-drawer__badge" style="background-color: {{ highlight_badge_color }};">{{ highlight_badge_text }}</span>
+                    {% endif %}
+                    <span class="custom-nav-drawer__menu-item-caret">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 6L15 12L9 18" stroke="#1E1B1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </button>
+                {% else %}
+                  <a
+                    href="{{ link.url }}"
+                    class="custom-nav-drawer__menu-item{% if is_highlighted %} custom-nav-drawer__menu-item--highlighted{% endif %}"
+                    {% if is_highlighted %}style="--highlight-color: {{ highlight_text_color }};"{% endif %}
+                  >
+                    <span class="custom-nav-drawer__menu-item-text">{{ link.title }}</span>
+                    {% if is_highlighted and highlight_badge_text != blank %}
+                      <span class="custom-nav-drawer__badge" style="background-color: {{ highlight_badge_color }};">{{ highlight_badge_text }}</span>
+                    {% endif %}
+                  </a>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          {%- comment -%} Featured Section with Promo Cards {%- endcomment -%}
+          {% assign has_promo_cards = false %}
+          {% for inner_block in section.blocks %}
+            {% if inner_block.type == 'promo-card' %}
+              {% assign has_promo_cards = true %}
+              {% break %}
+            {% endif %}
+          {% endfor %}
+
+          {% if has_promo_cards %}
+            <div class="custom-nav-drawer__featured">
+              <h3 class="custom-nav-drawer__featured-title">{{ section.settings.featured_title }}</h3>
+              <div class="custom-nav-drawer__promo-cards">
+                {% for inner_block in section.blocks %}
+                  {% if inner_block.type == 'promo-card' %}
+                    <div
+                      class="custom-nav-drawer__promo-card"
+                      style="background-color: {{ inner_block.settings.background_color }};{% if inner_block.settings.image %} background-image: url({{ inner_block.settings.image | image_url: width: 640 }});{% endif %}"
+                      {{ inner_block.shopify_attributes }}
+                    >
+                      <h4 class="custom-nav-drawer__promo-card-heading">{{ inner_block.settings.heading }}</h4>
+                      {% if inner_block.settings.button_text != blank %}
+                        <a
+                          href="{{ inner_block.settings.button_link | default: '#' }}"
+                          class="custom-nav-drawer__promo-card-button"
+                        >
+                          {{ inner_block.settings.button_text }}
+                        </a>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          {%- comment -%} Utility Footer {%- endcomment -%}
+          {% assign has_utility_links = false %}
+          {% for inner_block in section.blocks %}
+            {% if inner_block.type == 'utility-link' %}
+              {% assign has_utility_links = true %}
+              {% break %}
+            {% endif %}
+          {% endfor %}
+
+          {% if has_utility_links %}
+            <div class="custom-nav-drawer__utility-footer color-{{ section.settings.footer_color_scheme }}">
+              {% if section.settings.footer_title != blank %}
+                <p class="custom-nav-drawer__utility-title">{{ section.settings.footer_title }}</p>
+              {% endif %}
+              {% for inner_block in section.blocks %}
+                {% if inner_block.type == 'utility-link' %}
+                  <a
+                    href="{{ inner_block.settings.link | default: '#' }}"
+                    class="custom-nav-drawer__utility-link"
+                    {{ inner_block.shopify_attributes }}
+                  >
+                    {% if inner_block.settings.icon != blank %}
+                      <img
+                        src="{{ inner_block.settings.icon | image_url: width: 40 }}"
+                        alt=""
+                        class="custom-nav-drawer__utility-icon"
+                        width="20"
+                        height="20"
+                        loading="lazy"
+                      >
+                    {% endif %}
+                    <span class="custom-nav-drawer__utility-label">{{ inner_block.settings.label }}</span>
+                  </a>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        {% assign first_panel = false %}
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  {%- comment -%} === RIGHT PANEL (Filter) === {%- endcomment -%}
+  <div class="custom-nav-drawer__filter-panel" ref="filterPanel">
+    {%- comment -%} Mobile back button {%- endcomment -%}
+    <button class="custom-nav-drawer__close" type="button" data-action="close-filter" aria-label="Back to menu" style="position: absolute; top: 18px; right: 20px; display: none;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 6L6 18M6 6L18 18" stroke="#1E1B1C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    {% for block in section.blocks %}
+      {% if block.type == 'submenu-filter' %}
+        <div
+          class="custom-nav-drawer__filter-content"
+          ref="filterContents[]"
+          data-parent-handle="{{ block.settings.parent_handle }}"
+          {{ block.shopify_attributes }}
+        >
+          {% if block.settings.filter_menu != blank %}
+            {% render 'custom-nav-filter-panel', filter_menu: linklists[block.settings.filter_menu] %}
+          {% endif %}
+
+          {%- comment -%} Featured promo cards inside filter panel {%- endcomment -%}
+          {% assign has_filter_promos = false %}
+          {% for inner_block in section.blocks %}
+            {% if inner_block.type == 'promo-card' %}
+              {% assign has_filter_promos = true %}
+              {% break %}
+            {% endif %}
+          {% endfor %}
+
+          {% if has_filter_promos %}
+            <div class="custom-nav-filter__featured">
+              <h3 class="custom-nav-filter__featured-title">{{ section.settings.featured_title }}</h3>
+              <div class="custom-nav-drawer__promo-cards">
+                {% for inner_block in section.blocks %}
+                  {% if inner_block.type == 'promo-card' %}
+                    <div
+                      class="custom-nav-drawer__promo-card"
+                      style="background-color: {{ inner_block.settings.background_color }};{% if inner_block.settings.image %} background-image: url({{ inner_block.settings.image | image_url: width: 640 }});{% endif %}"
+                    >
+                      <h4 class="custom-nav-drawer__promo-card-heading">{{ inner_block.settings.heading }}</h4>
+                      {% if inner_block.settings.button_text != blank %}
+                        <a
+                          href="{{ inner_block.settings.button_link | default: '#' }}"
+                          class="custom-nav-drawer__promo-card-button"
+                        >
+                          {{ inner_block.settings.button_text }}
+                        </a>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</custom-nav-drawer>
+
+<script src="{{ 'custom-nav-drawer.js' | asset_url }}" type="module"></script>
+
+{% schema %}
+{
+  "name": "Custom Navigation Drawer",
+  "tag": "div",
+  "enabled_on": {
+    "groups": ["header"]
+  },
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "color_scheme",
+      "id": "footer_color_scheme",
+      "label": "Footer Color Scheme",
+      "default": "scheme-7"
+    },
+    {
+      "type": "text",
+      "id": "featured_title",
+      "label": "Featured Title",
+      "default": "Featured"
+    },
+    {
+      "type": "text",
+      "id": "footer_title",
+      "label": "Footer Title",
+      "default": "Need help?"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "nav-tab",
+      "name": "Navigation Tab",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Shop"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu"
+        }
+      ]
+    },
+    {
+      "type": "submenu-filter",
+      "name": "Submenu Filter Panel",
+      "limit": 20,
+      "settings": [
+        {
+          "type": "text",
+          "id": "parent_handle",
+          "label": "Parent Menu Item Handle",
+          "info": "Enter the handle of the menu item this filter panel belongs to (e.g. boots, apparel)"
+        },
+        {
+          "type": "link_list",
+          "id": "filter_menu",
+          "label": "Filter Navigation Menu"
+        }
+      ]
+    },
+    {
+      "type": "menu-highlight",
+      "name": "Menu Item Highlight",
+      "limit": 10,
+      "settings": [
+        {
+          "type": "text",
+          "id": "item_handle",
+          "label": "Menu Item Handle"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text Color",
+          "default": "#C74F1F"
+        },
+        {
+          "type": "text",
+          "id": "badge_text",
+          "label": "Badge Text"
+        },
+        {
+          "type": "color",
+          "id": "badge_color",
+          "label": "Badge Color",
+          "default": "#C74F1F"
+        }
+      ]
+    },
+    {
+      "type": "promo-card",
+      "name": "Promo Card",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Promo Card Header"
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button Text",
+          "default": "Shop Now"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button Link"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Background Image"
+        },
+        {
+          "type": "color",
+          "id": "background_color",
+          "label": "Background Color",
+          "default": "#E1E1D9"
+        }
+      ]
+    },
+    {
+      "type": "utility-link",
+      "name": "Utility Link",
+      "limit": 10,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Navigation Drawer"
+    }
+  ]
+}
+{% endschema %}

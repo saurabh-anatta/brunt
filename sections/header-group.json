@@ -23,7 +23,7 @@
             "font_size": "0.75rem",
             "weight": "",
             "letter_spacing": "normal",
-            "case": "none"
+            "case": "uppercase"
           },
           "blocks": {}
         }
@@ -35,7 +35,7 @@
       "settings": {
         "speed": 5,
         "section_width": "page-width",
-        "color_scheme": "scheme-1",
+        "color_scheme": "scheme-7",
         "divider_width": 1,
         "padding-block-start": 15,
         "padding-block-end": 15
@@ -63,7 +63,7 @@
             "type_font_primary_size": "0.875rem",
             "menu_font_style": "inverse",
             "type_font_primary_link": "body",
-            "type_case_primary_link": "none",
+            "type_case_primary_link": "uppercase",
             "menu_style": "featured_products",
             "featured_products_aspect_ratio": "4 / 5",
             "featured_collections_aspect_ratio": "16 / 9",
@@ -78,7 +78,7 @@
         }
       },
       "settings": {
-        "logo_position": "left",
+        "logo_position": "center",
         "menu_position": "left",
         "menu_row": "top",
         "show_search": true,
@@ -107,10 +107,123 @@
         "enable_transparent_header_collection": false,
         "collection_color_scheme": "default"
       }
+    },
+    "custom_nav_drawer": {
+      "type": "custom-nav-drawer",
+      "blocks": {
+        "tab_shop": {
+          "type": "nav-tab",
+          "settings": {
+            "title": "Shop",
+            "menu": "main-menu"
+          }
+        },
+        "tab_learn": {
+          "type": "nav-tab",
+          "settings": {
+            "title": "Learn",
+            "menu": ""
+          }
+        },
+        "tab_rewards": {
+          "type": "nav-tab",
+          "settings": {
+            "title": "Rewards",
+            "menu": ""
+          }
+        },
+        "promo_card_1": {
+          "type": "promo-card",
+          "settings": {
+            "heading": "Promo Card Header",
+            "button_text": "Shop Now",
+            "background_color": "#E1E1D9"
+          }
+        },
+        "promo_card_2": {
+          "type": "promo-card",
+          "settings": {
+            "heading": "Promo Card Header",
+            "button_text": "Shop Now",
+            "background_color": "#E1E1D9"
+          }
+        },
+        "promo_card_3": {
+          "type": "promo-card",
+          "settings": {
+            "heading": "Promo Card Header",
+            "button_text": "Shop Now",
+            "background_color": "#E1E1D9"
+          }
+        },
+        "utility_login": {
+          "type": "utility-link",
+          "settings": {
+            "label": "Login"
+          }
+        },
+        "utility_track_orders": {
+          "type": "utility-link",
+          "settings": {
+            "label": "Track Orders"
+          }
+        },
+        "utility_returns": {
+          "type": "utility-link",
+          "settings": {
+            "label": "Returns + Exchanges"
+          }
+        },
+        "utility_faqs": {
+          "type": "utility-link",
+          "settings": {
+            "label": "FAQs"
+          }
+        },
+        "utility_email": {
+          "type": "utility-link",
+          "settings": {
+            "label": "E-mail Us"
+          }
+        },
+        "utility_call": {
+          "type": "utility-link",
+          "settings": {
+            "label": "Call Us"
+          }
+        },
+        "utility_store_locator": {
+          "type": "utility-link",
+          "settings": {
+            "label": "Store Locator"
+          }
+        }
+      },
+      "block_order": [
+        "tab_shop",
+        "tab_learn",
+        "tab_rewards",
+        "promo_card_1",
+        "promo_card_2",
+        "promo_card_3",
+        "utility_login",
+        "utility_track_orders",
+        "utility_returns",
+        "utility_faqs",
+        "utility_email",
+        "utility_call",
+        "utility_store_locator"
+      ],
+      "settings": {
+        "footer_color_scheme": "scheme-7",
+        "featured_title": "Featured",
+        "footer_title": "Need help?"
+      }
     }
   },
   "order": [
     "header_announcements_9jGBFp",
-    "header_section"
+    "header_section",
+    "custom_nav_drawer"
   ]
 }
